@@ -1,0 +1,61 @@
+스프링시큐리티.txt(p606~)
+
+
+Spring Web Security 
+  => 서블릿(필터 filter) + 스프링(인터셉터 Interceptor) 사용 보안적 구축
+  
+  => 서블릿파일/컨트롤러에 영향,파일에 관여한다
+    (필터- 스프링과 연관X,순수 서블릿자원) ->  스프링에서 제공하는 다른 빈을 사용 불가능
+    (인터셉터 - 스프링과 연관O, 빈으로 관리)-> 스프링에서 제공하는 다른 빈을 사용가능
+  
+  
+  
+  
+  [프로젝트]
+  
+  
+  												   인증매니저				권한매니저
+  요청(request) -> Filter(서블릿) -> Interceptor[AuthenticationManager, AccessDecisionManger] 
+  									 Security Context (security-context.xml)
+  											 
+  									 Root Context (root-context.xml)
+  									 
+  									 Web Application Context (servlet-context.xml)
+  									 
+ 
+ * 시큐리티 라이브러리 설치 									 
+ https://mvnrepository.com/artifact/org.springframework.security/spring-security-core
+ 
+ https://mvnrepository.com/artifact/org.springframework.security/spring-security-web
+  
+ https://mvnrepository.com/artifact/org.springframework.security/spring-security-config
+ 							 
+ https://mvnrepository.com/artifact/org.springframework.security/spring-security-taglibs
+  									 		 
+  
+  * 인증(Authentication) : 나 자신을 증명하는것 
+     => 시스템에서 스스로 증명하기위한 자료제시 (신분증,사원증....)
+    
+     =>AuthenticationManager(인증매니저 객체-스프링)
+     
+  * 권한 부여/인가 (Authorization) : 남에 의해서 자격이 부여된다는것
+     => 시스템에서 남이 부여한 자격으로 역활 수행 (권한)
+     
+  
+  *  username / User 단어 : 시큐리티에서 특정 역활을 수행함
+  
+    일반	   시큐리티
+    userid ==> username   동일한 의미       
+    username => 사용x
+  
+    User(VO) => MemberVO   User:시큐리티- 인증정보,권한을 가진객체
+  
+  
+  
+  https://spring.io/blog/2017/11/01/spring-security-5-0-0-rc1-released#password-storage-updated
+  
+  https://github.com/spring-projects/spring-security/blob/main/core/src/main/java/org/springframework/security/provisioning/JdbcUserDetailsManager.java
+  
+  
+  
+

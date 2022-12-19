@@ -1,0 +1,510 @@
+스프링MVC.txt
+
+root-context.xml
+ => 프로젝트의 대부분의 설정을 제어 
+ 
+servlet-context.xml
+ => 프로젝트의 웹 설정만 제어
+ 
+web.xml
+=>  root-context.xml + servlet-context.xml 합쳐서 사용가능한다.
+
+[ servlet-context.xml ]
+ <!-- Enables the Spring MVC @Controller programming model -->
+	<annotation-driven />
+	=> 별도의 설정없이 클래스에 @Controller 만 사용하면 
+	  해당클래스를 컨트롤러로 만들수 있다.
+
+	<!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
+	<resources mapping="/resources/**" location="/resources/" />
+	=>  정적데이터 HTML,CSS,JS,Jquery,IMG..... 저장하는 폴더 지정
+
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
+	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/WEB-INF/views/" />
+		<beans:property name="suffix" value=".jsp" />
+	</beans:bean>
+	=>  컨트롤러와 view 연결할때  view 정보를 간결하게 처리 가능하도록 설정
+	  즉, 컨트롤러 에서는 view페이지 이름만 호출하면  설정을 사용해서
+	        /WEB-INF/views/ 호출이름 .jsp
+	
+	<context:component-scan base-package="com.itwillbs.web" />
+	=> 해당xml 파일이 특정 패키지에 있는 정보를 관리가능하게 하겠다.
+	
+	
+	* 스프링 MVC 구성
+	
+	Presentation Layer : UI를 담당하는 구성요소 => 웹/모바일
+	 view(html/jsp), controller 
+	--------------------------------------------------
+	Business Logic Layer : 서비스 계층, 고객의 요구사항을 처리함
+	 Model 형태
+	--------------------------------------------------
+	Data Access Layer : 영속성 계층 (DB처리)
+	  Persistence Layer / DAO
+	--------------------------------------------------
+	MyBatis (iBatis) : SQL Mapper 라이브러리 (외부파일xml 사용 -> sql 작성)
+	 - 간결한 코드작성 : 예외처리(try-catch),pstmt,rs 객체 처리(?값넣기,?값 가져오기) 생략
+	 - SQL 분리(xml/어노테이션)
+	 - Spring과의 연동성이 매우 우수함
+	 - 동적 SQL 제공
+	----------------------------------------------------------------------------------------------------
+	
+	* Spring-mybatis
+		[SqlSessionTemplate] 객체
+		
+  	* MyBatis
+  		[SqlSessionFactory] 객체 (DataSource 정보 조회)
+  		커넥션 생성, 처리, 디비연결, SQL 실행 .... 
+	
+	----------------------------------------------------------------------------------------------------
+	
+	
+	
+	DataBase  :  Mysql ,Oracle	
+	
+	*Mybatis : SQL Mapper 라이브러리
+	*Mybatis-spring : 스프링 - MyBatis 연결하는 라이브러리
+	*Spring jdbc : 스프링JDBC(디비연결) 라이브러리
+	*Spring test : 스프링 - MyBatis연결 여부 체크
+	
+	
+	*MyBatis - SQL 사용하는 방법
+	
+	1) XML 파일 - SQL 구문, DAO 파일에서 XML파일 호출 사용
+	 장점 : SQL 구문을 별도의 XML파일로 분리 => **유지보수** 우수함      1번 방식 씀.
+     단점 : 작성할 코드의 양이 증가, 복잡성 증가	
+	
+	2) 인터페이스 파일 - 어노테이션을 통한 SQL 작성
+	 장점 : 별도의 DAO 파일없이 개발 가능 => 생산성 증가
+	 단점 : SQL 수정이 발생시 마다 컴파일 실행
+	
+	3) 복잡한 SQL - XML파일, 간단한 SQL - 어노테이션으로 처리
+	 장점 : 상황에 따른 대처가 쉬움
+	 단점 : 개발자들 사이에 개발방식의 차이, 수준차이 발생   => 복잡함과 간단한의 기준이 다름 수준차이 때문에 '유지보수' 어려움
+	
+	
+	*MyBatis 실행
+	 1) 테이블 생성 / 디비설정 - Workbench
+	 2) 도메인 객체(DTO) 설계 및 생성 - src/main/java -> com.itwillbs.domain/MemberVO 클래스 생성
+	 3) DAO (인터페이스) 객체 - src/main/java -> com.itwillbs.persistence/MemberDAO 클래스 생성, src/main/resouces-> mappers/memberMapper.xml 생성
+	 4) DAO - 필요한 기능을 구현(추상메서드)
+	 5) XML Mapper 파일생성(DTD), SQL구문 작성
+	 6) MyBatis에서 XML Mapper 인식 설정  -> mybatis-config.xml에서 meberMapper.xml을 읽을수 있도록 설정해라.
+	   6-1) mapper DTD 작성
+	   6-2) mapper 위치(저장경로 - 외부에서 호출할 경로)
+	   6-3) SQL 작성
+	 7) DAO 객체 (구현), 스프링에 등록
+	 8) DAO 동작이 필요한 객체 생성 사용 (테스트)
+	 
+	 4, 6-3, 8번 이 3개만 하면 됨. 한 번 세팅 해놓으면 
+	 
+	 
+	 
+	 
+	 
+<mapper namespace="com.itwillbs.mapper.MemberMapper">
+          -> 외부에서 접근가능한 이름
+
+	<select id="외부 호출이름" resultType="string(리턴되는 결과의 타입)">
+		select now()  // SQL 작성
+	</select>
+	
+	<insert id="insertMember">
+	   insert into tbl_member (userid,userpw,username,useremail) 
+	   values (#{userid},#{userpw},#{username},#{useremail})	
+	   
+	   #{userid} => ? , pstmt.setString(1,userid) 동일한 동작
+	             마이바티스에서 자동으로 해당정보를 찾아줌
+	             	   
+	</insert>
+  
+
+</mapper>  
+
+
+
+ 		TEST [DAO 객체 주입]
+ -> 
+		DAO(DAOIMPl) [sqlSessionFactory 주입]
+ ->
+ 		mapper
+ ->
+ 		mysql
+	 
+	 
+	 
+	 
+	 ----------------------------------------------------------------------------------------------------
+	 
+	  [기존 MVC]
+  
+ 	 web.xml -> 컨트롤러 			<->		모델(Action)  <->  DAO  <-> DB
+  	 (매핑)	1. 가상주소 계산
+  			2. 가상주소 매핑 (패턴1,2,3)
+  			3. 페이지 이동
+  			
+  			|
+  			
+  			뷰
+  			
+  	[스프링 MVC]
+  	{web.xml}  컨트롤러   - 모델	- DAO - DB
+                 |
+                 뷰
+                 
+ 	[            테스트         ] - DAO - MyBatis/mapper - DB
+	 
+	 
+	 
+	 [기존 MVC]
+	 
+	 web.xml ->  컨트롤러            <->      모델(Action)  mvc패턴에서는 모델도 컨트롤러의 일부로 받음.  <->  DAO <-> DB
+	 (매핑)     1. 가상주소 계산
+	   			2. 가상주소 매핑(패턴 1, 2, 3)   1번 패턴 -> DB안쓰고 바로 view로 넘어감 / 2번 패턴 ->    / 3번패턴 -> DB를 쓰되 연결되있는 형태로 바로 넘어감 
+	   			3. 페이지 이동
+	 
+	 			|   
+	 	     
+	 	        뷰   
+	 			
+	 		1번 패턴은 컨트롤러에서 바로 뷰로 넘어감.
+	 		2번 패턴은 모델에 가서 정보 받아서 DAO로 가서 DB로 가서 다시 DAO로 와서  처리함.
+	
+	
+	[스프링 MVC]
+	(web.xml)  web.xml은 생략 가능 굳이 따로 매핑 안해도 됨.  컨트롤러(가 매핑의 역할을 함.)  - 모델  -  DAO  - DB   
+																 |
+																  뷰
+	
+	[                   테스트                 ] - DAO - MyBatis/mapper - DB
+
+	
+		-> 테스트가 컨트롤러, 모델, 뷰의 역할을 다 함.
+
+	 
+	[현 시점 동작 정리]
+	
+	
+	- 테스트 MemberDAOTest
+	  1) DAO 객체 생성 => 객체 주입(DI)  * 생성 대신 주입하는 거임. 결합도 낮춰야 하니까 
+	  2) 테스트 동작 @Test 
+	  3) 테스트 결과 확인
+	
+	- DAO / DAOImpl
+	  1) 인터페이스, 추상메서드 동작 선언
+	  2) 상속을 통해서 서브클래스 Impl 동작 구현  		     			     								 * 시스템의 성능은 코드의 양과 개발자의 노동과 아무상관이 없음. 길어도 상관없음 코드는, 
+	  3) 디비연결 정보 생성  - sqlSessionFactory 객체(스프링 - root-context.xml) 주입   				  	   실제 내부적으로 어떤 관계가 중요함. 확장성(다른걸로 대체했을떄, 어떤 결과가 나오냐 이런거)
+	  4) 오버라이딩 메서드 수행 
+	  5) 디비 연결, SQL 실행  => mapper 사용 				
+	  6) SQL 결과												 
+	  												 
+	- MyBatis/mapper
+	  1) namespace 설정 (외부에서 호출 가능한 이름)
+	  2) SQL 구문을 태그 형태로 표현 (아이디 설정)
+	
+
+	- DB
+	  1) SQL 실행 => 결과 리턴  여기서 6) -> 3) 순서로 넘어감.
+	
+	 
+	 
+	 [SqlSessionTemplate
+	   1. [  SqlSessionFactory  
+		 	    [DataSource, 
+		 		  DRIVER,
+		 		  URL, 
+		 		  ID, 
+		 		  PW
+		 	    ],
+		 	    MyBatis, 
+		 	    MAPPER
+		 	
+		 	
+		  ],
+		  
+		   
+		2. 자원해제
+	 
+	 	
+	 ]
+	 
+	 
+	 Bean 태그라는 건 객체를 만드는 거임.
+	 
+	 
+	 #{userid} => pstmt.setString(1, userid) 동일한 동작
+							마이바티스에서 자동으로 해당정보를 찾아줌.
+							
+							
+							
+ 			<insert id="insertMember">
+			 	insert into tbl_member (userid, userpw, username, usermail)
+				values(#{userid},#{userpw}, #{username}, #{usermail});				
+			</insert>
+			
+			
+			
+			
+			<select id="getMemberList" resultType = " ">   
+				select* from tbl_member
+			</select>
+	  	=> select는 리턴값이 있어야 함.
+	 
+	 
+	 
+	 
+	memberMapper.xml 파일 -> sql 구문은 세미콜론 안씀. 대상을 거쳐갈때는 세미콜론 안써도 됨
+	.xml파일은 주석 안 다는게 좋음.
+	
+	
+	
+	<mapper namespace="com.itwillbs.mapper.MemberMapper">
+  			-> 외부에서 접근가능한 이름
+  
+ 			<select id="외부 호출이름" resultType="string(리턴되는 결과의 타입)">  rs.getDate() 할 필요없이 String이면 끝
+  				select now()   // SQL 작성           		
+  			</select>
+  
+  	</mapper>
+  	
+  	
+  	
+  	=> MyBatis를 쓸꺼라서 sqlSessionFactory 객체를 사용하는 거임 안 쓸꺼면  DataSource만으로 디비연결 충분함.
+	 
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+	
+		<!-- setDataSource(DataSource dataSource> -->
+		<property name="dataSource" ref="dataSource" />  
+				
+		<!-- mybatis 설정 -->
+		<property name="configLocation"  
+	 		  	  value="classpath:/mybatis-config.xml"/>
+	
+		<!-- mapper 설정 -->
+		<property name="mapperLocations" 
+				  value="classpath:mappers/**/*Mapper.xml" />
+		
+	
+	</bean>
+	
+	 
+	 
+	 src/test/java -> 실행도 시키고 보여줄수 있는 view 같은거.
+	 
+	 
+	 상속관계에서 오버라이딩은 부모의 객체를 은닉시킨다.
+	 
+	 
+	 
+	 * 실행과정
+	 TEST [DAO 객체 주입]  ->  DAO(DAOImpl) [sqlSessionFactory 주입]  ->  Mapper  ->  mysql
+	 
+	 
+	 
+	 
+	 새로운 메서드가 생성되면 바로 DAO인터페이스로 가서 설정해주면 됨.
+	 
+	 
+	 
+	 
+	 
+	Injection은 객체를 직접생성하는게 아니라 주입을 하게 해준다.
+
+	제어의 역전 IoC를 바탕으로.
+
+ 	root-context.xml 파일에
+
+	property 는 set 메서드 만든거랑 똑같음
+
+	객체 잘못 불러주면 컴파일 에러는 발생하지 않으나,
+		
+	객체와 관련된 동작에서 에러 발생함.  
+
+	Console 메세지 말고, JUnit 메세지 확인.
+	 
+	 
+	 
+	 
+	 
+	 
+	
+	
+	쇼핑몰 가면 사러가는 정보제공 해주는데 root-context.xml
+	
+	* 의존 객체 자동주입 방식
+	 (DI : Dependency Injection)
+	 => why? 3개나 있는가? => 각각 사용의 형태가 다름
+	 => 객체 주입 (동일 객체가 여러 개 있을때)
+	 
+	 1) @Resource   [ JAVA 제공, 다른 프레임워크(ex) 안드로이드)에 종속되지 않음X ] 
+
+		이름  ->  타입  ->  @Qualifier  ->  검색실패(구분 X)
+		
+		* root-context.xml파일에 <context:annotation-config/> 구문을 추가해야 함
+		  그래야 대상 구분가능
+		* 멤버변수, set()(메서드) 에서만 사용가능한 어노테이션이다.
+		
+	 2) @Autowired  [ SPRING 제공, SPRING 프레임워크 종속O)  종속 -> 그 프레임워크에서만 쓸 수 있다.
+	 
+	   	타입  ->  이름  ->  @Qualifier  ->  검색실패(구분 X) 
+	   	
+	   	* root-context.xml파일에 <context:annotation-config/> 구문을 추가해야 함
+		  그래야 대상 구분가능
+		* 멤버변수, set(), 생성자, 일반메서드 사용가능한 어노테이션이다. (프레임워크에서 지원하는 어노테이션이라 쓸수 있는데가 비교적 많음)
+	 
+	 3) @Inject     [ JAVA 제공, 다른 프레임워크에 종속X ]
+	 
+	 	타입  ->  @Qualifier  ->  이름  ->  검색실패(구분 X)
+		
+		* 빌드도구 (Maven/gradle)에 라이브러리 의존성을 추가해야함.(설치)
+		
+		<!-- @Inject -->
+		<dependency>
+			<groupId>javax.inject</groupId>
+			<artifactId>javax.inject</artifactId>
+			<version>1</version>
+		</dependency>
+		
+		* 멤버변수, set(), 생성자, 일반메서드 사용가능한 어노테이션이다.
+
+	
+	
+	*** @Qualifier  ->  동일한 객체를 구분할 때 사용
+	
+	    -> 동일한 객체(빈)가 존재하는 경우 예외가 발생
+	     스프링 컨테이너가 초기화 할 때 ( 쉽게 말하면, 스프링이 실행될 떄)
+ 
+ 
+ 		ex) root-context.xml
+ 		
+ 		  <bean id ="이름" class="객체위치" name ="객체의 별칭" constructor-arg(arguments) = "생성자사용 초기화" property="setter를 사용한 초기화">
+ 												   (like Alias)	 (생성자에 들어가는 인자)
+ 		
+ 				<qualifier value="itwill"/>
+ 
+ 		  </bean>
+ 		  
+ 		  
+ 		  
+ 		<bean id = "abc" class = "~~~~ABC" > </bean>
+ 		<bean id = "abc2" class = "~~~~ABC" > </bean>
+ 		
+ 		
+ 		@Autowired   @Qualifier("itwill") -> root-context.xml 파일의 qualifier value = " " 값을 가져옴
+ 		private ABC abc; 
+ 		
+ 
+ 		종속자체도 결합도를 높이기 때문에, 종속 안되는 inject가 좀 더 괜찮은 방법. 주로 autowired, inject를 많이 씀.
+ 
+ 
+
+ * 내 생각
+ 그럼 타입 먼저 체크할지 이름 먼저 체크할지 변수가 많을 수록 성능 차이가 크겠지 중요도에 따라 머 만들때도 그렇고
+
+
+
+
+질문 1) 어떤 조건이 충족되었을때 파일 그림에 "S" 뜨는건지(만들떄 spring legacy project로 만들면 됨) 
+        커피콩 모양은 beans라서 뜨는거 같은데 
+        
+     2) 서버 Pivotal tc 이건 머 자체서버인가(자체 서버는 한계가 있음 그래서 외부서버 쓰는 거임)
+
+
+
+		* 동작 순서 
+
+			TEST  ->  DAO(DAOImpl)  ->   MyBatis(mapper)  ->   DB(MySQL)  
+			->  MyBatis(mapper)  ->  DAO(DAOImpl) ->  TEST
+
+
+	
+		* 최신 트랜드는 root-context.xml / servlet-context.xml 이런 것도 없음. 그냥 순수 자바로 조짐.
+	
+	
+	
+		* 스프링 MVC 
+		
+		요청 (request)  ->    FrontController     <->       [ Controller  <->  Model  <->  DAO ]      <->     DB
+														     이 3개 묶어서 Controller 라고함.
+								   |  						기존의 Action 페이지라고 보면 됨.
+								  
+							      View
+					
+					
+					DB 안 쓰면 바로 View로, DB 쓰면 Controller로 보냄.
+						
+					
+		요청 (request)  ->    FrontController     <->      Controller   <->    Service  <->   DAO    <->    MyBatis   <->     DB
+														이 3개 묶어서 Controller 라고함.
+								   |
+								
+							      View			
+							      
+	    
+	    * 스프링 MVC에서 처리하는 작업
+	    	- URI를 분석해서 적절한 컨트롤러 매핑
+	    	- 컨트롤러에 대한 필요한 동작 (메서드) 호출
+	        - 연결된 뷰를 자동으로 매핑 이동 
+	        - 컨트롤러의 결과(데이터)를 뷰페이지로 이동 
+	        - 파라미터 수집(전달되는 정보를 알아서 받아줌 파라미터가)     // 원래는 request.해서 받아서 썼지만 그거 안해도 자동으로 알아서 해줌 파라미터가
+	        - 어노테이션 지원
+	        - 개발자는 로직에만 집중
+	        - 테스트 친화적 개발
+	         
+	        
+	    * 개발자가 처리하는 작업
+	    	- 특정 URI에 동작하는 컨트롤러 생성(설계)
+	    	- 서비스 객체 생성(컨트롤러랑 DAO사이에 있음) 서비스 객체가 컨트롤러랑 DAO가 강한결합을 하지 않게 해줌.
+	    	- DAO객체 생성
+	    	- 컨트롤러에 필요한 동작을 메서드로 구현 
+	    	- 뷰에 전달된 데이터 출력 
+	    	
+	    	
+	    	
+	  콘솔창에서 메세지가 2가지 종류인지 확인해야함.
+	  
+	  
+	  검정색, 빨간색(에러) 혹은 파란색  
+
+
+										
+		<!-- Enables the Spring MVC @Controller programming model -->
+			<annotation-driven />   => 이것떔에 controller가 됨.
+			
+			
+			<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		       <beans:property name="prefix" value="/WEB-INF/views/" /> 앞
+		       <beans:property name="suffix" value=".jsp" /> 뒤
+	        </beans:bean>
+	        
+	        
+	        스프링은 첨에 설계를 잘해야 된다. 딱딱 맞춰서 잘해야 함 그래서. 
+	        
+	      
+	      
+	      * 서비스 계층 (비지니스 계층)
+	      => 고객의 요구사항을 반영해서 처리하는 계층
+	      => 컨트롤러와  DAO를 연결하는 도구 (* 완충장치)
+	        => 컨트롤러-DAO (직접연결)  종속적 관계 
+	        
+	        ex) Oracle DB / Mysql DB  각각 쓰는 두 회사가 있다면, 서비스 계층에서 DB연결하는 코드만 바꿔주면 됨.
+	        
+	        
+	        * Log4j 로그 레벨 (총 6단계)
+
+  			FATAL > ERROR > WARN > INFO > DEBUG > TRACE	
+    		  6                                     1 
+	        
+	        FATAL   : 시스템적으로 심각한 문제가 발생하는 경우
+	        ERROR   : 프로젝트 실행중에 문제가 발생하는 경우 
+	        WARN    : 시스템 오류의 원인을 출력
+	        INFO    : 상태 확인 (운영 정보)
+	        DEBUG   : 개발시 필요동작                       // 어쩌면 우리는 지금 log.info보다는 log.debug를 쓰는게 맞음. ㅎ
+	        TRACE   : DEBUG보다 상세정보 출력
+	        * 지정한 레벨 밑으로는 출력 X, 위로만 출력O  
+	        INFO 찍으면, DEBUG, TRACE는 출력 안됨
+	        
+	        
+	
+	

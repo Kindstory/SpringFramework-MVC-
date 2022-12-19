@@ -1,0 +1,54 @@
+REST.txt
+
+https://learn.microsoft.com/ko-kr/azure/architecture/best-practices/api-design
+https://www.youtube.com/results?search_query=%EC%9D%B4%EB%9F%B0+rest+api%EB%A1%9C+%EA%B4%9C%EC%B0%AE%EC%9D%80%EA%B0%80
+
+REST : Representational State Transfer
+   => 특정 URI가 고유한 데이터(리소스)를 처리하는 개발방식
+   REST 방식 API => REST API(RESTful API)      
+
+   * 거의 대부분의 API가 REST API임.
+   * 다양한 기기에서 동일한 정보를 처리하기 위해 등장(웹-> 모바일)
+   * REST API는 웹에서 쓰는 개념임.
+   
+* 옛날 웹 : 서버사이드에서 데이터 생성 (데이터 + 페이지) -> view 전달 출력
+* 요즘 웹 : 서버에서 브라우저/모바일에서 출력되는데 필요한 정보만 전달 -> 출력
+
+스프링 3.xx 버전에서 -> @ResponseBody 제공 
+스프링 4.xx 버전에서 -> @RestController 제공 
+   
+
+* ResponseEntity 타입 : RESTController는 view페이지를 제공X,
+                 에러(예외)가 발생시 정확한 판단 하기 어렵다. 
+                 
+                 데이터 + Http status (상태코드) 함께 전달
+  
+  https://developer.mozilla.org/ko/docs/Web/HTTP/Status
+  
+  * HTTP status
+  100번대 : 현재 데이터의 처리중인 상태
+   -100 : 데이터중 일부를 서버가 전달 받았다.
+   
+  200번대 : 정상적인 응답
+   -200 : 에러가 없는 정상처리    
+   -204 : 정상처리 완료,서버에서 다시 보내줄 데이터가 없음
+   
+  300번대 : 다른 URL 처리
+   -301 : 요청한 페이지가 새 URL 주소로 변경
+   -304 : 기존의 데이터와 변경이 없음 
+   
+  400번대 : 서버에서 인식이 불가능
+   - 400 : 전송된 요청(request)에 문제가 있음
+   - 403 : 서버에서 허락되지 않음(Ajax)
+   - 404 : URL에 해당하는 자원(페이지)을 찾을수 없음
+   - 406 : 전송방식 허락되지 않음(REST방식)
+   
+   500번대 : 서버 내부의 문제
+    - 500 : 서버에서 처리 시 문제 발생
+    - 502 : 게이트웨이나 프록시 상태문제(과부화)
+    - 503 : 일시적인 과부화,서비스 중단상태
+    - 504 : 지정된 처리시간이 지남 
+ 
+
+
+

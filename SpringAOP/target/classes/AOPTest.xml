@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+        "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+        
+<beans>
+	<!-- 타겟클래스를 빈으로 설정 -->
+	<bean id="calTarget"  class="com.itwillbs.aop.Calculator"/>
+	<!-- 어드바이스 클래스를 빈으로 설정 -->
+	<bean id="logAdvice" class="com.itwillbs.aop.LoggingAdvice" />
+	
+	<!-- ProxyFactoryBean 클래스 사용 (연결 : 타켓-어드바이스) -->
+	<bean id="proxyCal" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="target"  ref="calTarget" />
+		<property name="interceptorNames">
+			<list>
+				<value>logAdvice</value>
+		<!-- 		<value>logAdvice</value>
+				<value>logAdvice</value> -->
+			</list>		
+		</property>
+	
+	</bean>
+
+
+
+
+</beans>

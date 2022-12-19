@@ -1,0 +1,32 @@
+AOP.txt
+
+AOP(Aspect Oriented Programming)
+관점 지향 프로그래밍  : 메서드안에서 주기능/보조기능으로 분리 필요할때 선택적 사용
+      주기능 : 처리 로직
+      보조기능 : 로깅,트렌젝션,보안....
+      
+ * 용어
+  	aspect : 구현하고자 하는 보조기능
+  	advice : aspect기능을 실제 구현체(클래스)/ 메서드 호출기준 여러 지점 호출가능
+  	joinpoint : advice를 적용하는 지점(spring-메서드호출)
+  	pointcut : advice가 적용되는 대상지정.(패키지명/클래스명/메서드명 - 정규식호출)
+  	target : advice가 적용되는 클래스
+  	weaving : advice를 주기능에 적용하는 것
+  	
+ 
+ 
+ * 스프링 API 활용 - AOP 구현하기
+ 
+   1) target 클래스를 지정 (주기능)
+   2) advice 클래스를 지정 (보조기능)
+   3) 스프링 설정파일을 사용해서 pointcut 설정
+   4) 스프링 설정파일에서 advice와 pointcut을 결합하는 adviser 설정
+   5) 스프링 설정파일에서 스프링제공 클래스(ProxyFactroyBean) target에 advice설정
+   6) 생성된 객체(Bean)사용하여 호출 (getBean)
+  	
+  	
+  	
+  	
+  	
+  	
+  	   

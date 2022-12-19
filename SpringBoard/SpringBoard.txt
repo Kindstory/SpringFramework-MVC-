@@ -1,0 +1,219 @@
+SpringBoard.txt
+
+  DB
+    데이터베이스 생성, 계정준비
+    테이블 설계, 생성
+    더미 데이터 추가
+    
+  스프링MVC
+	패키지 준비 (domain/persistence/service/controller/.....)
+	파트별 동작 준비
+	파트별 테스트 준비
+
+  View
+  	화면방식 결정(JSP/HTML(+js))
+  	페이지 경로 설정( 절대경로, 상대경로 )
+  	
+  	
+  	
+  	* MVC 구조에서의 상대경로
+  	
+  	
+  	  1) 가상주소  => ./ (프로젝트명)
+  	  (JSP)	     ./MemberJoin.me  => MVC/MemberJoin.me
+  	  (SPRING)	 ./member/insert  => controller/member/insert 
+  	  	 
+  	  	 
+  	  2) 실제주소  => ./  (본문 최상위 경로)
+  	  (JSP)	     ./member/login.jsp  => WebContent/member/login.jsp
+  	  (SPRING)	 ./image/hello.jpg	 => webapp/image/hello.jpg
+  	  
+  	  
+  	  
+  	  
+  	  
+  	  [컨트롤러 구현시]
+  	  
+  	  * 컨트롤러별 호출 공통 주소 / 각 기능별 호출 주소
+  	  * 기능별 주소(호출 방식 GET/POST)
+  	  	- GET : 사용자 입력, 정보 조회(출력) => 사용자 한테 정보를 입력받고, 보여줄 때
+  	  	- POST : 작업(비지니스 로직), DB작업 => 정보를 처리할 때
+  	  	
+  	  * 각 주소별 결과 처리 및 이동 방향(페이지)
+  	  * 예외 처리
+  	  
+  	  글쓰기
+  	  	 /BoardWrite.bo         
+  	  	 /BoardWriteAction.bo     <기존 JSP  방식>
+ 
+  	  	 =>
+  	  	  /write (GET)
+  	  	  /write (POST)  		<Spring 방식>
+  	  	  
+  	  	  
+  	  게시판 목록
+  	  	 /BoardListAction.bo
+  	  	 
+  	     /list (GET) 	  
+  	     
+  	     
+  	  게시판 글 수정
+  	  	 /update  (GET)  => get방식으로 글 조회
+  	  	 /update  (POST)  => 수정할때 post방식으로
+  	  	 
+  	  
+  	 * 동작
+  	  
+  	  글쓰기 => (글->DB) 
+  	  
+  	 * 수정 
+  	  
+  	  기존의 정보를 보여주고 -> 그걸 수정 ( 수정하기 전의 정보를 보여주는 페이지(조회의 의미) -> get방식 ) 
+  	  정보를 변경해서 submit( 정보를 수정(처리) -> post방식으로 주소를 호출 ) 
+  	  
+  	  
+  	 * 기존의 패턴들을 바탕으로 이해 하면 됨. 
+  	 
+  	* SQL 구문
+      (Unparsed) Character Data : 파싱하지 않는 문자 데이터
+      
+       <![CDATA[
+		select * from tbl_board 
+		where bno > 0
+		]]>
+    
+     => 태그안에 작성된 데이터를 파싱 X, 단순 텍스트로 해석
+       (잘못파싱될 가능성이 있는 코드 위한 방법)
+   		
+   		select * from tbl_board 
+		where bno &gt; 0
+    
+       >      &gt;
+       <	  &lt;
+       >=	  &gt;=
+       <=	  &lt;=
+    
+    
+    @RequestParam("bno") int bno 
+      => request.getParamater(); 역할
+      => JSP/SPRING 차이 : 형변환 X,  문자열,숫자,날짜
+      => 전달데이터(쿼리스트링)와 1:1 매핑
+    
+    
+    @ModelAttribute("bno") int bno     
+      => request.getAttribute(); 역할
+      => 전달되는 파라미터의 타입 상관없이 Model객체에 저장후 사용
+      => 컨트롤러단 사용(메서드 호출)
+     
+     Model객체
+      => model.addAttribute();
+      => 컨트롤러의 메서드에서만 사용
+      
+     
+    * 예외처리 => 객체
+    
+    1) @ExceptionHandler  (메서드 예외처리)
+    2) @ControllerAdvice  (클래스 예외처리)   	
+    3) @ResponseStatus    (페이지 호출시 예외처리)
+  	
+  	
+  	
+  	* 페이징 처리 
+  	
+  	- <a> 태그 페이징처리(네이버 쇼핑) 
+  	   =>  주소줄에 모든 데이터를 가지고 이동(주소가 복잡)
+  	  	  주소를 처리하는 동작이 까다롭다	
+  		  * 검색엔진 노출이 매우 쉽다.
+  	
+  	- <form> 태그 페이징처리(쿠팡 쇼핑) 
+  	   => 페이징 처리 정보를 폼태그에 담아서 전달 
+  	      주소를 간결하게 처리, 빠른 개발
+  	        => JavaScript
+  	      
+  	 * 페이징처리 원칙
+  	   1) 페이징처리는 반드시 GET방식
+  	      -> URL주소를 사용한 정보 호출(조회)
+  	   2) 페이징처리, 목록으로 다시 이동 기능은 한 세트
+  	   3) 특정 페이지에서 글 확인 후 다시 원래 페이지로 이동
+  	   
+  	   
+  	   insert into tbl_board (title, content, writer)     
+	   (select title, content, writer from tbl_board);        
+  	       
+  	    value자리에 select구문 넣으면 배로 늘어남 tbl_board안에 있는 컬럼 수 만큼 늘어남 
+  	 
+  	  	  
+  	  <select id="listPage" resultType="BoardVO">
+  	  
+  		select * from tbl_board
+  		order by bno desc, regdate desc 
+  		limit #{page},10  	                  // #{page} 이게 시작페이지 
+  			 
+  	  </select>	  
+  	  	  
+  	  	  
+  	  <select id="listPage2" resultType="BoardVO">   => vo객체로 받으면 page랑 pageSize 두개를 받는게 있어야 함
+  	  
+  		select * from tbl_board
+  		order by bno desc, regdate desc 
+  		limit #{page}, #{pageSize}    		
+  		
+  	  </select>  
+  	  	  
+  	  	  
+  	  설계단계에서 시간을 많이 써야함. 
+  	  
+  	  
+  	   *하단 페이징 블럭
+    
+    - 시작 페이지번호
+      - 항상 1 시작
+      startPage = (endPage - pageBlock) + 1;
+      
+    - 끝 페이지번호
+      - 페이징처리 크기
+      endPage = 올림(page/pageBlock) * pageBlock
+      				    3/10 * 10 => 10
+      				    15/10 * 10 => 20
+      				    57/10 * 10 => 60
+    - 전체 데이터 개수
+    
+    - 이전페이지
+        startPage == 1?
+    - 다음페이지
+        total  > <  endPage * pageBlock
+    
+        page=3&perPageNum=10
+    ex) 한페이지,블럭 10개 출력 / 총 122개
+       => 페이지수 : 13
+          
+          확인하고있는 페이지 : 3페이지          
+          startPage : 1
+          endPage : 10
+          이전 : x
+          다음 : o
+          
+          확인하고있는 페이지 : 10페이지          
+          startPage : 1
+          endPage : 10
+          이전 : x
+          다음 : o
+          
+          확인하고있는 페이지 : 12페이지          
+          startPage : 11
+          endPage : 20 -> 13
+          이전 : o
+          다음 : x
+    
+  		
+  	* 페이징처리 VO
+  	  - 페이지 번호
+  	  - 페이지당 출력 개수
+  	  - 글 개수(total)
+  	  
+  	  - 시작페이지 (블럭)
+  	  - 끝페이지 (블럭)
+  	  - 이전
+  	  - 다음 
+  	   
+  	  	  
